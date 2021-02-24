@@ -7,18 +7,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//Router is ...
 type Router interface {
 	Routes(router *gin.Engine)
 }
 
+//RouterStruct is ...
 type RouterStruct struct {
-	userService controller.UserController
+	userService        controller.UserController
+	bukuService        controller.BukuController
+	activityController controller.ActivityController
 }
 
-func NewUserController(userController controller.UserController) RouterStruct {
-	return RouterStruct{userController}
+//NewUserController is ...
+func NewUserController(userController controller.UserController, bukuController controller.BukuController, activityController controller.ActivityController) RouterStruct {
+	return RouterStruct{userController, bukuController, activityController}
 }
 
+//Routes is ...
 func (c *RouterStruct) Routes(router *gin.Engine) {
 
 	v1 := router.Group("/v1")
@@ -32,6 +38,28 @@ func (c *RouterStruct) Routes(router *gin.Engine) {
 		v1.PUT("/user/:id", c.userService.Update)
 		v1.DELETE("/user/:id", c.userService.Delete)
 		v1.PUT("/user/:id/photo", c.userService.UpdatePhoto)
+
+	}
+	v2 := router.Group("/v1")
+	{
+		v3 := v2.Group("/buku")
+		{
+			v3.GET("/", c.bukuService.FindByJudul)
+			v3.GET("/allBuku", c.bukuService.FindAll)
+			v3.Use(middleware.Authorization())
+			v3.POST("/:id", c.bukuService.Create)
+			v3.PUT("/:id", c.bukuService.Update)
+			v3.DELETE("/:id", c.bukuService.Delete)
+		}
+	}
+	v4 := router.Group("/v1")
+	{
+		v5 := v4.Group("/activity")
+		{
+			v5.Use(middleware.Authorization())
+			v5.POST("/pinjam/:id", c.activityController.PinjamBuku)
+			v5.POST("/kembali/:id", c.activityController.KembaliBuku)
+		}
 	}
 
 }

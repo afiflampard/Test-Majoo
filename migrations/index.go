@@ -7,4 +7,7 @@ import (
 //Migrations Table
 func Migrations(db *gorm.DB) {
 	User(db)
+	Buku(db)
+	Peminjaman(db)
+	History(db)
 }

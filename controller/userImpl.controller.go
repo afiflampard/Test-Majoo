@@ -90,6 +90,8 @@ func (controller *loginController) SignUp(c *gin.Context) {
 	addPerson := models.User{
 		Username: person.Username,
 		Password: string(pass),
+		FullName: person.FullName,
+		Role:     person.Role,
 	}
 	err = GetDB().Debug().Create(&addPerson).Error
 	if err != nil {

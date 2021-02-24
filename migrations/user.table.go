@@ -8,9 +8,18 @@ import (
 	"gorm.io/gorm"
 )
 
-var users = seeder.SeedUser()
+var users, role = seeder.SeedUser()
 
 func User(db *gorm.DB) error {
+	dbRole := db.Debug().Migrator().DropTable(&models.Role{})
+
+	if dbRole != nil {
+		log.Fatal("Cannot Drop Table")
+	}
+	dbRole = db.Debug().AutoMigrate(&models.Role{})
+	if dbRole != nil {
+		log.Fatal("Cannot migrate Table")
+	}
 	dbUser := db.Debug().Migrator().DropTable(&models.User{})
 	if dbUser != nil {
 		log.Fatal("Cannot Drop table")
@@ -18,6 +27,13 @@ func User(db *gorm.DB) error {
 	dbUser = db.Debug().AutoMigrate(&models.User{})
 	if dbUser != nil {
 		log.Fatal("Cannot migrate Table")
+	}
+
+	for _, role := range role {
+		err := db.Debug().Create(&role).Error
+		if err != nil {
+			log.Fatalf("Failed to Create Role")
+		}
 	}
 
 	for _, user := range users {
