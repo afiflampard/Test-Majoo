@@ -2,8 +2,10 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log"
+	"majoo/entities"
 	"majoo/models"
 	"mime/multipart"
 	"os"
@@ -11,23 +13,26 @@ import (
 	"gorm.io/gorm"
 )
 
-func CreateProduct(db *gorm.DB, product models.Product, id int, idUser int) (*models.Product, error) {
+func CreateProduct(db *gorm.DB, product entities.RequestProduct, id int, idUser int) (*models.Product, error) {
 	var productTemp models.Product
+	fmt.Println("Id nya", id)
 	var (
 		user models.User
 	)
-	if err := db.First(user, idUser).Preload("Role").Error; err != nil {
+	if err := db.Debug().First(&user, idUser).Preload("Role").Error; err != nil {
 		return nil, errors.New("User Not Found")
 	}
 	var count int64
-	db.Where("nama_product = ? AND id_outlet = ?", product.NamaProduct, id).Find(&productTemp).Count(&count)
-	if productTemp.Outlet.User.Role.Role == "Merchant" {
+	db.Where("nama_product = ? AND id_outlet = ?", product.NamaProduk, id).Preload("Outlet").Preload("Outlet.User").Preload("Outlet.User.Role").Find(&productTemp).Count(&count)
+
+	if user.RoleID == 1 {
 		if count < 1 {
 			addProduct := models.Product{
-				IdOutlet:     uint(id),
-				NamaProduct:  product.NamaProduct,
+				IdOutlet:    uint(id),
+				NamaProduct: product.NamaProduk,
+
 				IdUser:       uint(idUser),
-				HargaProduct: product.HargaProduct,
+				HargaProduct: product.Harga,
 				MaxStock:     product.Stock,
 				Stock:        product.Stock,
 			}
@@ -36,8 +41,8 @@ func CreateProduct(db *gorm.DB, product models.Product, id int, idUser int) (*mo
 			}
 			return &addProduct, nil
 		}
-		productTemp.HargaProduct = product.HargaProduct
-		productTemp.NamaProduct = product.NamaProduct
+		productTemp.HargaProduct = product.Harga
+		productTemp.NamaProduct = product.NamaProduk
 		productTemp.Stock = product.Stock
 		if err := db.Save(&productTemp).Error; err != nil {
 			return nil, err
@@ -45,9 +50,10 @@ func CreateProduct(db *gorm.DB, product models.Product, id int, idUser int) (*mo
 
 	} else if user.RoleID == 2 {
 		addProduct := models.Product{
-			IdSupplier:   user.ID,
-			NamaProduct:  product.NamaProduct,
-			HargaProduct: product.HargaProduct,
+			IdUser:       user.ID,
+			IdOutlet:     1,
+			NamaProduct:  product.NamaProduk,
+			HargaProduct: product.Harga,
 			MaxStock:     product.Stock,
 			Stock:        product.Stock,
 		}

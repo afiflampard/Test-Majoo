@@ -4,9 +4,8 @@ import "gorm.io/gorm"
 
 type Product struct {
 	gorm.Model
-	NamaProduct  string `gorm:"column:nama_product" json:"nama_product"`
-	IdSupplier   uint   `gorm:"column:id_supplier" json:"id_supplier"`
-	IDSupplier   User   `gorm:"foreignKey:IdSupplier"`
+	NamaProduct string `gorm:"column:nama_product" json:"nama_product"`
+
 	IdUser       uint   `gorm:"column: id_user" json:"id_user"`
 	User         User   `gorm:"foreignKey:IdUser"`
 	IdOutlet     uint   `gorm:"column:id_outlet" json:"idOutlet"`

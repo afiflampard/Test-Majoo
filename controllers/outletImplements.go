@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"majoo/service"
 	"net/http"
 
@@ -15,6 +16,7 @@ func OutletControllers() OutletController {
 
 func (ctx Outlet) CreateOutlet(c *gin.Context) {
 	idUser := int(GetID(c))
+	fmt.Println("ID user", idUser)
 	resp, err := service.CreateOutlet(GetDB(), idUser)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, "Request tidak sesuai")

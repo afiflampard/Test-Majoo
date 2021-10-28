@@ -18,7 +18,7 @@ func TransaksiControllers() TransaksiController {
 func (ctx Transaksi) OrderJual(c *gin.Context) {
 	idUser := int(GetID(c))
 	request := entities.OrderRequest{}
-	if err := c.ShouldBindJSON(request).Error; err != nil {
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, "Request not valid")
 		return
 	}
@@ -49,7 +49,7 @@ func (ctx Transaksi) HistoryPenjualan(c *gin.Context) {
 func (ctx Transaksi) OrderBeli(c *gin.Context) {
 	idUser := int(GetID(c))
 	request := entities.OrderRequest{}
-	if err := c.ShouldBindJSON(request).Error; err != nil {
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, "Request not valid")
 		return
 	}
@@ -67,7 +67,7 @@ func (ctx Transaksi) HistoryPembelian(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, "invalid request")
 		return
 	}
-	resp, err := service.HistoryPenjualan(GetDB(), idOutlet)
+	resp, err := service.HistoryPembelian(GetDB(), idOutlet)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, "Inventory Kosong")
 		return

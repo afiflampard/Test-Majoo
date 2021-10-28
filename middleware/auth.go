@@ -20,11 +20,12 @@ func Authorization() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 		claims, ok := token.Claims.(jwt.MapClaims)
+		fmt.Println(claims)
 		if !ok && !token.Valid {
 			fmt.Println("Masuk sini")
 			fmt.Println(err)
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
-		c.Set("user_id", claims["user_id"])
+		c.Set("user_id", claims["id"])
 	}
 }

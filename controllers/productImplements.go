@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+	"majoo/entities"
 	"majoo/models"
 	"majoo/service"
 	"net/http"
@@ -16,18 +18,22 @@ func ProductControllers() ProductController {
 }
 
 func (ctx Product) CreateProduct(c *gin.Context) {
-	id := c.Param("id")
-	IdOutlet, err := strconv.Atoi(id)
-	idUser := GetID(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, "Request Tidak Valid")
-	}
-	newProduct := models.Product{}
-	if err := c.ShouldBindJSON(&newProduct).Error; err != nil {
+
+	newProduct := &entities.RequestProduct{}
+	if err := c.ShouldBindJSON(&newProduct); err != nil {
+		fmt.Println("Errornya ", err)
 		c.JSON(http.StatusBadRequest, "Request Tidak Valid")
 		return
 	}
-	resp, err := service.CreateProduct(GetDB(), newProduct, IdOutlet, int(idUser))
+	idUser := GetID(c)
+	id := c.Param("id")
+	IdOutlet, err := strconv.Atoi(id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, "Request Tidak Valid")
+	}
+
+	resp, err := service.CreateProduct(GetDB(), *newProduct, IdOutlet, int(idUser))
 	if err != nil {
 		c.JSON(http.StatusBadGateway, map[string]string{
 			"message": "You cannot add Product",
@@ -79,7 +85,7 @@ func (ctx Product) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, "Request Not Valid")
 		return
 	}
-	if err := c.ShouldBindJSON(&product).Error; err != nil {
+	if err := c.ShouldBindJSON(&product); err != nil {
 		c.JSON(http.StatusBadRequest, "Request not valid")
 		return
 	}
